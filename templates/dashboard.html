@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Museum Explorer</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,700;1,400&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Heritage Color Palette */
+            --color-saffron: #FF9933;
+            --color-green: #138808;
+            --color-cream: #FDFBF7;
+            --color-dark-brown: #2C1810;
+            --color-gold: #D4AF37;
+            --color-terracotta: #E2725B;
+            --glass-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--color-dark-brown), var(--color-terracotta));
+            color: var(--color-dark-brown);
+            min-height: 100vh;
+            padding-bottom: 50px;
+            background-attachment: fixed; /* Parallax effect */
+        }
+
+        /* Decorative Indian Pattern Overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(var(--color-gold) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Top Heritage Border */
+        .heritage-border {
+            height: 6px;
+            background: linear-gradient(90deg, var(--color-saffron), white, var(--color-green));
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- Header Section --- */
+        .header-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(8px);
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .logo-area h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.2rem;
+            color: var(--color-dark-brown);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-emoji { font-size: 2.5rem; animation: float 3s ease-in-out infinite; }
+        .logo-area p { color: #666; font-size: 0.95rem; margin-top: 5px; margin-left: 60px; }
+
+        .action-buttons { display: flex; gap: 15px; }
+
+        .btn {
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-primary {
+            background-color: var(--color-saffron);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 153, 51, 0.4);
+        }
+        
+        .btn-secondary {
+            background-color: var(--color-dark-brown);
+            color: white;
+        }
+
+        .btn-logout {
+            background-color: white;
+            color: #D32F2F;
+            border: 1px solid #ffcdd2;
+        }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+
+        /* --- Search Bar --- */
+        .search-container {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .search-form {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 8px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            border: 2px solid var(--color-gold);
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1rem;
+            outline: none;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .search-btn {
+            background: var(--color-dark-brown);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .search-btn:hover { background: var(--color-saffron); }
+
+        /* --- Museum Grid --- */
+        .section-title {
+            color: var(--color-cream);
+            font-family: 'Merriweather', serif;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .museum-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+        }
+
+        .museum-card {
+            background: var(--glass-bg);
+            border-radius: 16px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-top: 5px solid var(--color-gold);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .museum-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            border-top-color: var(--color-saffron);
+        }
+
+        .card-emoji {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+            background: rgba(255, 153, 51, 0.1);
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            border-radius: 50%;
+            align-self: center;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+            color: var(--color-dark-brown);
+            font-family: 'Merriweather', serif;
+        }
+
+        .card-city {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .hover-arrow {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s;
+            font-size: 1.2rem;
+            color: var(--color-saffron);
+        }
+
+        .museum-card:hover .hover-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            grid-column: 1 / -1;
+            padding: 50px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+        }
+
+        /* Animations */
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .header-card { flex-direction: column; gap: 20px; text-align: center; padding: 20px; }
+            .logo-area p { margin-left: 0; }
+            .action-buttons { width: 100%; justify-content: center; flex-wrap: wrap; }
+            .btn { flex: 1; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="heritage-border"></div>
+
+    <div class="container">
+        
+        <div class="header-card">
+            <div class="logo-area">
+                <h1>
+                    <span class="logo-emoji">🏛️</span> 
+                    Museum Explorer
+                </h1>
+                <p>
+                    {% if is_quiz_selection %}
+                        Select a museum to start your AI Quiz challenge
+                    {% else %}
+                        Discover the hidden jewels of Indian Heritage
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="action-buttons">
+                {% if is_quiz_selection %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                        ⬅️ Back to List
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('quiz_selection') }}" class="btn btn-primary">
+                        🧠 Take AI Quiz
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">
+                    🚪 Logout
+                </a>
+            </div>
+        </div>
+
+        {% if not is_quiz_selection %}
+        <div class="search-container">
+            <form action="{{ url_for('dashboard') }}" method="GET" class="search-form">
+                <input type="text" name="search" class="search-input" placeholder="Search by name or city (e.g., Jaipur, Rail)..." value="{{ search_query }}">
+                <button type="submit" class="search-btn">🔍 Search</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <h2 class="section-title">
+            {% if is_quiz_selection %}
+                ✨ Choose a Museum for Quiz
+            {% else %}
+                🏰 Featured Museums ({{ museums|length }})
+            {% endif %}
+        </h2>
+
+        <div class="museum-grid">
+            {% if museums %}
+                {% for museum in museums %}
+                
+                {% set emoji = '🏺' %}
+                {% if 'rail' in museum.name|lower %}{% set emoji = '🚂' %}
+                {% elif 'doll' in museum.name|lower %}{% set emoji = '🎎' %}
+                {% elif 'art' in museum.name|lower or 'gallery' in museum.name|lower %}{% set emoji = '🎨' %}
+                {% elif 'textile' in museum.name|lower or 'calico' in museum.name|lower %}{% set emoji = '🧶' %}
+                {% elif 'science' in museum.name|lower or 'tech' in museum.name|lower %}{% set emoji = '🔬' %}
+                {% elif 'palace' in museum.name|lower or 'fort' in museum.name|lower %}{% set emoji = '🏰' %}
+                {% elif 'hall' in museum.name|lower %}{% set emoji = '🏛️' %}
+                {% endif %}
+
+                <a href="{% if is_quiz_selection %}{{ url_for('quiz', museum_key=museum.key) }}{% else %}{{ url_for('museum_profile', museum_name=museum.key) }}{% endif %}" class="museum-card">
+                    
+                    <div class="card-emoji">{{ emoji }}</div>
+                    
+                    <div class="card-title">{{ museum.name }}</div>
+                    <div class="card-city">📍 {{ museum.city }}</div>
+                    
+                    <div class="hover-arrow">
+                        {% if is_quiz_selection %}🚀 Start{% else %}👉 Visit{% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="no-results">
+                    <h2>🧐 No museums found</h2>
+                    <p>Try searching for a different city or name.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

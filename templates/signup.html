@@ -1,38 +1,205 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Museum Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,700;1,400&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --color-saffron: #FF9933;
+            --color-green: #138808;
+            --color-dark-brown: #2C1810;
+            --color-terracotta: #E2725B;
+            --color-gold: #D4AF37;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
 
-{% block title %}Sign Up - Auth System{% endblock %}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-{% block content %}
-<div class="logo">
-    <h1>Create Account</h1>
-    <p>Join us today</p>
-</div>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--color-dark-brown), var(--color-terracotta));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
 
-<form method="POST" action="{{ url_for('signup') }}">
-    <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" required placeholder="Choose a username">
+        /* Indian Pattern Overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(var(--color-gold) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* Top Border */
+        .heritage-border {
+            position: fixed; top: 0; left: 0; right: 0; height: 6px;
+            background: linear-gradient(90deg, #FF9933, white, #138808);
+            z-index: 100;
+        }
+
+        .container {
+            background: var(--glass-bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+            border-top: 5px solid var(--color-green); /* Green for Signup */
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo { text-align: center; margin-bottom: 25px; }
+        
+        .logo-emoji { font-size: 3rem; margin-bottom: 10px; display: inline-block; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .logo h1 {
+            color: var(--color-dark-brown);
+            font-family: 'Merriweather', serif;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .logo p { color: #666; font-size: 0.9rem; }
+
+        .form-group { margin-bottom: 15px; text-align: left; }
+        
+        .form-group label {
+            display: block;
+            color: var(--color-dark-brown);
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+            background: white;
+        }
+
+        .form-group input:focus {
+            border-color: var(--color-green);
+            box-shadow: 0 0 0 4px rgba(19, 136, 8, 0.15);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--color-green), #0e6f05);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(19, 136, 8, 0.3);
+        }
+
+        .link-text {
+            text-align: center;
+            margin-top: 25px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .link-text a {
+            color: var(--color-green);
+            text-decoration: none;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .link-text a:hover { text-decoration: underline; }
+
+        /* Flash Messages */
+        .flash {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .flash.error { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+
+        @media (max-width: 480px) { .container { padding: 30px 20px; } }
+    </style>
+</head>
+<body>
+    <div class="heritage-border"></div>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <div class="logo">
+            <span class="logo-emoji">✨</span>
+            <h1>Create Account</h1>
+            <p>Join the community of heritage explorers</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('signup') }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Choose a unique username">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email address">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Create a strong password" minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required placeholder="Re-enter your password" minlength="6">
+            </div>
+
+            <button type="submit" class="btn">Sign Up</button>
+        </form>
+
+        <div class="link-text">
+            Already have an account? <a href="{{ url_for('login') }}">Login here</a>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required placeholder="Enter your email">
-    </div>
-
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required placeholder="Create a password" minlength="6">
-    </div>
-
-    <div class="form-group">
-        <label for="confirm_password">Confirm Password</label>
-        <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm your password" minlength="6">
-    </div>
-
-    <button type="submit" class="btn">Sign Up</button>
-</form>
-
-<div class="link-text">
-    Already have an account? <a href="{{ url_for('login') }}">Login here</a>
-</div>
-{% endblock %}
+</body>
+</html>

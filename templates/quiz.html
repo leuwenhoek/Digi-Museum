@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if quiz_submitted %}Quiz Results{% else %}{{ quiz_title }}{% endif %} - Museum Explorer</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,700;1,400&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Heritage Palette */
+            --color-saffron: #FF9933;
+            --color-green: #138808;
+            --color-dark-brown: #2C1810;
+            --color-terracotta: #E2725B;
+            --color-gold: #D4AF37;
+            --color-success: #28a745;
+            --color-error: #dc3545;
+            --glass-bg: rgba(255, 255, 255, 0.90);
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--color-dark-brown), var(--color-terracotta));
+            min-height: 100vh;
+            color: var(--color-dark-brown);
+            padding-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Pattern Overlay */
+        body::before {
+            content: "";
+            position: fixed; inset: 0;
+            background-image: radial-gradient(var(--color-gold) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Top Border */
+        .heritage-border {
+            position: fixed; top: 0; left: 0; right: 0; height: 6px;
+            background: linear-gradient(90deg, #FF9933, white, #138808);
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+        }
+
+        /* --- Header & Title --- */
+        .quiz-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 30px;
+            border-top: 5px solid var(--color-saffron);
+            text-align: center;
+        }
+
+        .quiz-header h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.2rem;
+            color: var(--color-dark-brown);
+            margin-bottom: 5px;
+        }
+        
+        .quiz-header p { color: #666; font-style: italic; font-size: 1.1rem; }
+        
+        /* --- Quiz Form Style --- */
+        .question-card {
+            background: var(--glass-bg);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--color-gold);
+            transition: all 0.3s ease;
+        }
+        
+        .question-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .question-title {
+            color: var(--color-saffron);
+            font-size: 1.3rem;
+            font-family: 'Merriweather', serif;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-label {
+            display: block;
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            background: rgba(255, 153, 51, 0.05);
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            border: 1px solid transparent;
+            font-weight: 500;
+        }
+
+        .option-label:hover {
+            background: rgba(255, 153, 51, 0.1);
+            border-color: var(--color-saffron);
+        }
+
+        .option-label input[type="radio"] {
+            margin-right: 12px;
+            accent-color: var(--color-saffron);
+            transform: scale(1.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--color-saffron), #e68a00);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 153, 51, 0.4);
+        }
+
+        /* --- Results Display Style --- */
+        .results-summary {
+            background: var(--glass-bg);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .results-summary h2 {
+            font-family: 'Merriweather', serif;
+            color: var(--color-success);
+            margin-bottom: 15px;
+            font-size: 2rem;
+        }
+
+        .score-box {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: inline-block;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--color-green), var(--color-success));
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        .score-box small { font-size: 0.5em; font-weight: 400; opacity: 0.8; }
+
+        .detail-results-title {
+            font-family: 'Merriweather', serif;
+            font-size: 1.6rem;
+            color: var(--color-dark-brown);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 5px solid;
+        }
+
+        .correct { border-left-color: var(--color-success); }
+        .incorrect { border-left-color: var(--color-error); }
+
+        .result-item h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--color-dark-brown);
+        }
+
+        .answer-status {
+            font-weight: 600;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .answer-status.correct-answer { color: var(--color-success); }
+        .answer-status.user-answer { color: #555; }
+        
+        .action-links {
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .link-btn {
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: transform 0.2s, opacity 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .link-btn-profile {
+            background: var(--color-dark-brown);
+            color: white;
+        }
+        
+        .link-btn-back {
+            background: #eee;
+            color: var(--color-dark-brown);
+            border: 1px solid #ddd;
+        }
+        
+        .link-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        @media (max-width: 600px) {
+            .quiz-header { padding: 20px; }
+            .quiz-header h1 { font-size: 1.8rem; }
+            .results-summary { padding: 30px 20px; }
+            .action-links { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="heritage-border"></div>
+
+    <div class="container">
+        
+        <div class="quiz-header">
+            <span style="font-size: 3rem; display: block; margin-bottom: 10px;">
+                {% if quiz_submitted %}🏆{% else %}🧠{% endif %}
+            </span>
+            <h1>{{ quiz_title }}</h1>
+            <p>Test your knowledge on {{ museum_name }}!</p>
+        </div>
+
+        {% if quiz_submitted %}
+            {# --- QUIZ RESULTS DISPLAY --- #}
+            
+            <div class="results-summary">
+                <h2>🎉 Quiz Complete!</h2>
+                
+                {% set percent_score = (score / total_questions * 100) | round(1) %}
+                
+                <div class="score-box">
+                    {{ score }} <small> / {{ total_questions }}</small>
+                </div>
+                
+                <p style="font-size: 1.1rem; color: #444; margin-bottom: 10px;">
+                    You answered **{{ percent_score }}%** of the questions correctly.
+                </p>
+                
+                {% if percent_score >= 80 %}
+                    <p style="color: var(--color-success); font-weight: 600;">Excellent work! You are a true heritage scholar!</p>
+                {% elif percent_score >= 50 %}
+                    <p style="color: var(--color-saffron); font-weight: 600;">Good effort! Keep exploring to master this museum.</p>
+                {% else %}
+                    <p style="color: var(--color-error); font-weight: 600;">Time to visit the museum again! You'll learn more next time.</p>
+                {% endif %}
+            </div>
+
+            <h3 class="detail-results-title">Detailed Breakdown</h3>
+            
+            {% for result in results %}
+                <div class="result-item {% if result.is_correct %}correct{% else %}incorrect{% endif %}">
+                    <h4>{{ loop.index }}. {{ result.question }}</h4>
+                    
+                    {% if result.is_correct %}
+                        <span class="answer-status correct-answer">
+                            ✅ Your Answer: {{ result.user_answer }} (Correct)
+                        </span>
+                    {% else %}
+                        <span class="answer-status user-answer">
+                            ❌ Your Answer: {{ result.user_answer }}
+                        </span>
+                        <span class="answer-status correct-answer">
+                            ✔️ Correct Answer: {{ result.correct_answer }}
+                        </span>
+                        <p style="font-size: 0.9rem; color: #777; margin-top: 5px;">{{ result.explanation }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="action-links">
+                <a href="{{ url_for('quiz_selection') }}" class="link-btn link-btn-back">
+                    ⬅️ Choose Another Quiz
+                </a>
+                <a href="{{ url_for('museum_profile', museum_name=museum_key) }}" class="link-btn link-btn-profile">
+                    🏛️ Go to {{ museum_name }} Profile
+                </a>
+            </div>
+
+        {% else %}
+            {# --- QUIZ FORM DISPLAY --- #}
+            <form method="POST" action="{{ url_for('quiz', museum_key=museum_key) }}">
+                {% for q in questions %}
+                    <div class="question-card">
+                        <h4 class="question-title">
+                            Question {{ loop.index }} of {{ questions|length }}
+                        </h4>
+                        <p style="font-weight: 600; margin-bottom: 15px;">{{ q.question }}</p>
+                        
+                        {% for option in q.options %}
+                            <label class="option-label">
+                                <input type="radio" 
+                                       name="q_{{ loop.parent.loop.index0 }}" 
+                                       value="{{ option }}" 
+                                       required>
+                                {{ option }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="submit-btn">
+                    Submit Quiz & Get My Score
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="{{ url_for('quiz_selection') }}" style="color: white; opacity: 0.7; font-size: 0.9rem; text-decoration: none;">
+                    Cancel and Go Back
+                </a>
+            </div>
+
+        {% endif %}
+    </div>
+</body>
+</html>

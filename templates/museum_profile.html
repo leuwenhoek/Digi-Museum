@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ details.name }} - Museum Explorer</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,700;1,400&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Heritage Palette */
+            --color-saffron: #FF9933;
+            --color-green: #138808;
+            --color-dark-brown: #2C1810;
+            --color-terracotta: #E2725B;
+            --color-gold: #D4AF37;
+            --glass-bg: rgba(255, 255, 255, 0.90);
+            --glass-card: rgba(255, 255, 255, 0.65);
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--color-dark-brown), var(--color-terracotta));
+            min-height: 100vh;
+            color: var(--color-dark-brown);
+            padding-bottom: 60px;
+        }
+
+        /* Pattern Overlay */
+        body::before {
+            content: "";
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(var(--color-gold) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Top Border */
+        .heritage-border {
+            position: fixed; top: 0; left: 0; right: 0; height: 6px;
+            background: linear-gradient(90deg, #FF9933, white, #138808);
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- Header & Title --- */
+        .profile-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 30px;
+            border-top: 5px solid var(--color-saffron);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--color-saffron); }
+
+        .museum-title h1 {
+            font-family: 'Merriweather', serif;
+            font-size: 2.5rem;
+            color: var(--color-dark-brown);
+            margin-bottom: 5px;
+        }
+        
+        .museum-title p { color: #666; font-style: italic; }
+
+        /* --- Grid Layout for Info --- */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .main-col { display: flex; flex-direction: column; gap: 25px; }
+        .side-col { display: flex; flex-direction: column; gap: 25px; }
+
+        /* --- Glass Cards --- */
+        .glass-card {
+            background: var(--glass-bg);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .section-title {
+            font-family: 'Merriweather', serif;
+            font-size: 1.4rem;
+            color: var(--color-saffron);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255, 153, 51, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Quick Facts (Stats) --- */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.5);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .stat-icon { font-size: 1.8rem; margin-bottom: 5px; display: block; }
+        .stat-label { font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-weight: 700; font-size: 1.1rem; color: var(--color-dark-brown); }
+
+        /* --- AI Summary --- */
+        .ai-summary-box {
+            background: linear-gradient(135deg, #fffbf0, #fff);
+            border: 1px solid var(--color-gold);
+            padding: 20px;
+            border-radius: 12px;
+            position: relative;
+        }
+        .ai-summary-box::before {
+            content: "✨ AI Insights";
+            position: absolute;
+            top: -12px; left: 20px;
+            background: var(--color-gold);
+            color: white;
+            font-size: 0.75rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+        .ai-text { line-height: 1.7; color: #444; font-size: 0.95rem; }
+
+        /* --- Buttons --- */
+        .btn-visit {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .status-wishlist {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+        
+        .status-visited {
+            background: linear-gradient(135deg, var(--color-green), #0e6f05);
+            box-shadow: 0 4px 15px rgba(19, 136, 8, 0.3);
+        }
+
+        .btn-visit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+
+        /* --- Gallery --- */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .gallery-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .gallery-img:hover { transform: scale(1.05); }
+
+        .img-placeholder {
+            height: 150px;
+            background: rgba(255, 153, 51, 0.05);
+            border: 2px dashed rgba(255, 153, 51, 0.3);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-saffron);
+            font-size: 0.8rem;
+        }
+
+        /* --- Reviews --- */
+        .review-form textarea, .review-form select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .review-btn {
+            background: var(--color-saffron);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .review-btn:hover { background: #e68a00; }
+
+        .review-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--color-saffron);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .reviewer-name { font-weight: 700; color: var(--color-dark-brown); }
+        .stars { color: #FFC107; margin-left: 10px; }
+        .review-date { font-size: 0.8rem; color: #999; margin-top: 5px; display: block; }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+            .content-grid { grid-template-columns: 1fr; }
+            .side-col { order: -1; } /* Stats on top on mobile */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="heritage-border"></div>
+
+    <div class="container">
+        
+        <div class="profile-header">
+            <a href="{{ url_for('dashboard') }}" class="back-link">⬅ Back to Dashboard</a>
+            <div class="museum-title">
+                <h1>{{ details.name }}</h1>
+                <p>📍 {{ details.city }}</p>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            
+            <div class="main-col">
+                
+                {% if ai_summary %}
+                <div class="glass-card">
+                    <div class="ai-summary-box">
+                        <p class="ai-text">{{ ai_summary }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="glass-card">
+                    <h3 class="section-title">🖼️ Image Gallery</h3>
+                    
+                    {% set images = gallery_images or [] %}
+                    {% set total_slots = 6 %}
+                    {% set placeholders = (total_slots - images|length) if images|length < total_slots else 0 %}
+
+                    <div class="gallery-grid">
+                        {% if images %}
+                            {% for image_url in images %}
+                                <img src="{{ image_url }}" alt="{{ details.name }}" class="gallery-img">
+                            {% endfor %}
+                        {% endif %}
+
+                        {# Render placeholders to keep grid balanced #}
+                        {% for i in range(placeholders) %}
+                            <div class="img-placeholder">
+                                <span style="font-size: 1.5rem; opacity: 0.5;">📷</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if not images %}
+                        <p style="text-align: center; color: #999; margin-top: 10px; font-size: 0.9rem;">No official images available yet.</p>
+                    {% endif %}
+                </div>
+
+                <div class="glass-card">
+                    <h3 class="section-title">✍️ Review Diary</h3>
+                    
+                    <form method="POST" class="review-form">
+                        <textarea name="review_text" required placeholder="Share your cultural experience... (e.g., 'The architecture was stunning!')" rows="3"></textarea>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+                            <select name="rating" required style="width: auto; margin-bottom: 0;">
+                                <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                                <option value="4">⭐⭐⭐⭐ Very Good</option>
+                                <option value="3">⭐⭐⭐ Average</option>
+                                <option value="2">⭐⭐ Poor</option>
+                                <option value="1">⭐ Terrible</option>
+                            </select>
+                            <button type="submit" class="review-btn">Post Review</button>
+                        </div>
+                    </form>
+
+                    <div style="margin-top: 30px;">
+                        <h4 style="margin-bottom: 15px; color: #666;">Recent Stories</h4>
+                        {% if reviews %}
+                            {% for review in reviews %}
+                                <div class="review-card">
+                                    <div>
+                                        <span class="reviewer-name">{{ review.username }}</span>
+                                        <span class="stars">{% for i in range(review.rating) %}⭐{% endfor %}</span>
+                                    </div>
+                                    <p style="margin-top: 8px; font-style: italic; color: #555;">"{{ review.review_text }}"</p>
+                                    <span class="review-date">{{ review.timestamp }}</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="text-align: center; color: #999; font-style: italic;">No reviews yet. Be the first to write one!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="side-col">
+                <div class="glass-card">
+                    <h3 class="section-title">🏛️ Quick Facts</h3>
+                    
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <span class="stat-icon">👥</span>
+                            <div class="stat-label">Annual Visitors</div>
+                            <div class="stat-value">{{ "{:,}".format(details.visitors_per_year) }}</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">🎟️</span>
+                            <div class="stat-label">Entry (Week)</div>
+                            <div class="stat-value">₹{{ details.weekday_charge | round(0) }}</div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-icon">🌅</span>
+                            <div class="stat-label">Entry (Weekend)</div>
+                            <div class="stat-value">₹{{ details.weekend_charge | round(0) }}</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 25px;">
+                        <form method="POST">
+                            <input type="hidden" name="toggle_visited" value="1">
+                            {% if wishlist_status %}
+                                <button type="submit" class="btn-visit status-visited">
+                                    ✅ Mark as Visited
+                                </button>
+                                <p style="text-align: center; font-size: 0.8rem; margin-top: 8px; color: var(--color-green);">You have visited this place!</p>
+                            {% else %}
+                                <button type="submit" class="btn-visit status-wishlist">
+                                    ⭐ Add to Wishlist
+                                </button>
+                                <p style="text-align: center; font-size: 0.8rem; margin-top: 8px; color: #666;">Plan your visit now</p>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
