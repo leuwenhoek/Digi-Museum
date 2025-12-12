@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Auth System{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a56 0%, #ffd89b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fffbf0;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 450px;
+            padding: 50px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 154, 86, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #ff7f27;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            color: #ff9f57;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ff7f27;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #ffd89b;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+            color: #333;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff9a56;
+            box-shadow: 0 0 0 3px rgba(255, 154, 86, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #ccc;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+
+        .forgot-password a {
+            color: #ff9f57;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .forgot-password a:hover {
+            color: #ff7f27;
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff7f27 0%, #ff9f57 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 127, 39, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider span {
+            padding: 0 15px;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ffd89b;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .social-btn:hover {
+            border-color: #ff9a56;
+            background: #fff8f0;
+            transform: translateY(-2px);
+        }
+
+        .link-text {
+            text-align: center;
+            margin-top: 25px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .link-text a {
+            color: #ff7f27;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .link-text a:hover {
+            color: #ff9f57;
+            text-decoration: underline;
+        }
+
+        .flash-messages {
+            margin-bottom: 25px;
+        }
+
+        .flash {
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .flash.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 40px 30px;
+            }
+            
+            .logo h1 {
+                font-size: 28px;
+            }
+
+            .social-login {
+                flex-direction: column;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        // Add smooth form validation feedback
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() === '' && this.hasAttribute('required')) {
+                        this.style.borderColor = '#ff6b6b';
+                    } else {
+                        this.style.borderColor = '#ffd89b';
+                    }
+                });
+
+                input.addEventListener('input', function() {
+                    if (this.value.trim() !== '') {
+                        this.style.borderColor = '#ffd89b';
+                    }
+                });
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
